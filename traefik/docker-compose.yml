@@ -22,11 +22,11 @@ services:
       - "traefik.http.routers.traefik.rule=Host(`traefik.docker.localhost`)"
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-        # HTTP REDIRECT
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.routers.redirect-https.rule=hostregexp(`{host:.+}`)"
-      - "traefik.http.routers.redirect-https.entrypoints=insecure"
-      - "traefik.http.routers.redirect-https.middlewares=redirect-to-https"
+      #  # HTTP REDIRECT
+      #- "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      #- "traefik.http.routers.redirect-https.rule=hostregexp(`{host:.+}`)"
+      #- "traefik.http.routers.redirect-https.entrypoints=insecure"
+      #- "traefik.http.routers.redirect-https.middlewares=redirect-to-https"
 
 networks:
   traefik-network:
