@@ -12,8 +12,8 @@ services:
       - "8080:8080"
     volumes:
       # So that Traefik can listen to the Docker events
-      - "./var/run/docker.sock:/var/run/docker.sock"
-      - "./traefik.yml:/etc/traefik/traefik.yml"
+      - "C:/docker/traefik/var/run/docker.sock:/var/run/docker.sock"
+      - "C:/docker/traefik:/etc/traefik/traefik.yml"
       # - "./config.yml:/etc/traefik/config.yml"
       # - "./certs:/etc/certs:ro"
       # - "./acme.json:/acme.json"
