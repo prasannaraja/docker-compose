@@ -1,0 +1,35 @@
+# docker-compose.yml
+version: "3.8"
+services:
+  web:
+    image: "gitlab/gitlab-ce:latest"
+    restart: always
+    hostname: "localhost"
+    container_name: gitlab-ce
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost'
+    ports:
+      - "8082:80"
+      - "8443:443"
+    volumes:
+      - "C:/Docker/GitLab/config:/etc/gitlab"
+      - "C:/Docker/GitLab/logs:/var/log/gitlab"
+      - "C:/Docker/GitLab/data:/var/opt/gitlab"
+    networks:
+      - gitlab
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner
+    restart: always
+    depends_on:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "C:/Docker/GitLab/gitlab-runner:/etc/gitlab-runner"
+    networks:
+      - gitlab
+
+networks:
+  gitlab:
+    name: gitlab-network

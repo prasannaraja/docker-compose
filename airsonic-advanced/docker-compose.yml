@@ -1,0 +1,29 @@
+---
+version: "3"
+services:
+  airsonicadvanced:
+    networks:
+      - traefik-network
+    image: ghcr.io/kagemomiji/airsonic-advanced:latest
+    user: 1000:1000
+    environment:
+      - TZ=Europe/Paris
+      - JAVA_OPTS=-Xmx1024m -Dserver.forward-headers-strategy=native
+    volumes:
+      - $MUSIC_FOLDER:/var/music
+      - $PODCAST_FOLDER:/var/podcasts
+      - $PLAYLIST_FOLDER:/var/playlists
+      - ./config:/var/airsonic
+    # ports:
+    #   - 4040:4040
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.airsonicadvanced.entrypoints=insecure"
+      - "traefik.http.routers.airsonicadvanced.rule=Host(`airsonic.docker.localhost`)"
+      - "traefik.http.services.airsonicadvanced.loadbalancer.server.port=4040"
+        # - "traefik.http.routers.airsonicadvanced.tls.certresolver=le"
+
+networks:
+  traefik-network:
+    external: true

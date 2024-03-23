@@ -1,0 +1,41 @@
+---
+version: "3.3"
+services:
+  fireflyiii:
+    image: fireflyiii/core:latest
+    container_name: fireflyiii
+    env_file: .env_firefly
+    volumes:
+      - firefly_iii_upload:/var/www/firefly-iii/storage/upload
+    restart: always
+    depends_on:
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fireflyiii.entrypoints=insecure"
+      - "traefik.http.routers.fireflyiii.rule=Host(`fireflyiii.docker.localhost`)"
+      - "traefik.http.services.fireflyiii.loadbalancer.server.port=8080"
+      # - "traefik.http.routers.fireflyiii.tls.certresolver=le"
+  db:
+    image: mariadb
+    hostname: fireflyiiidb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_USER=firefly
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD
+      - MYSQL_DATABASE=firefly
+    restart: always
+    volumes:
+      - firefly_iii_db:/var/lib/mysql
+
+volumes:
+  firefly_iii_upload:
+  firefly_iii_db:
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

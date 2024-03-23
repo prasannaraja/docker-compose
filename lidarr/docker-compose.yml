@@ -1,0 +1,29 @@
+---
+version: "2.1"
+services:
+  lidarr:
+    image: lscr.io/linuxserver/lidarr
+    container_name: lidarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - UMASK=022 #optional
+    volumes:
+      - ./config:/config
+      - $MUSIC_FOLDER:/music
+      - $DOWNLOADS_FOLDER:/downloads/
+        # ports:
+        #   - 8686:8686
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lidarr.entrypoints=insecure"
+      - "traefik.http.routers.lidarr.rule=Host(`lidarr.docker.localhost`)"
+      - "traefik.http.services.lidarr.loadbalancer.server.port=8686"
+        # - "traefik.http.routers.lidarr.tls.certresolver=le"
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

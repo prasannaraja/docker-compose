@@ -1,0 +1,20 @@
+---
+version: "3"
+services:
+  cyberchef:
+    image: mpepping/cyberchef
+    container_name: cyberchef
+    # ports:
+    #   - 8000:8000
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cyberchef.entrypoints=insecure"
+      - "traefik.http.routers.cyberchef.rule=Host(`cyberchef.docker.localhost`)"
+      - "traefik.http.services.cyberchef.loadbalancer.server.port=8000"
+        # - "traefik.http.routers.cyberchef.tls.certresolver=le"
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

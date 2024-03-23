@@ -1,0 +1,27 @@
+---
+version: "3"
+services:
+  homer:
+    image: b4bz/homer:latest
+    container_name: homer
+    environment:
+      - UID=1000
+      - GID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - ./assets/:/www/assets
+    # ports:
+    #   - 8080:8080
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+        # - "traefik.http.routers.homer.tls=true"
+      - "traefik.http.routers.homer.rule=Host(`homer.docker.localhost`)"
+      - "traefik.http.services.homer.loadbalancer.server.port=8080"
+      - "traefik.http.routers.homer.entrypoints=insecure"
+        # - "traefik.http.routers.homer.tls.certresolver=le"
+
+networks:
+  default:
+    name: $DEFAULT_NETWORK
+    external: true

@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  bind9:
+    image: ubuntu/bind9:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    networks:
+      - traefik-network
+    volumes:
+      - ./bind:/etc/bind
+      - ./cache:/var/cache/bind
+      - ./records:/var/lib/bind
+    environment:
+      - BIND9_USER=root
+      - TZ=Europe/Berlin
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bind9.entrypoints=insecure"
+      - "traefik.http.routers.bind9.rule=Host(`dns.docker.localhost`)"
+      - "traefik.http.services.bind9.loadbalancer.server.port=53"
+      # - "traefik.http.routers.bind9.tls.certresolver=le"
+
+networks:
+  traefik-network:
+    external: true

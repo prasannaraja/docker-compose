@@ -1,0 +1,20 @@
+---
+version: "3"
+services:
+  beehive:
+    image: fribbledom/beehive
+    networks:
+      - traefik-network
+    # ports:
+    #   - 8181:8181
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.beehive.entrypoints=insecure"
+      - "traefik.http.routers.beehive.rule=Host(`beehive.docker.localhost`)"
+      - "traefik.http.services.beehive.loadbalancer.server.port=8181"
+        # - "traefik.http.routers.beehive.tls.certresolver=le"
+
+networks:
+  traefik-network:
+    external: true

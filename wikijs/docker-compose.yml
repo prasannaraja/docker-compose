@@ -1,0 +1,42 @@
+version: "3"
+services:
+  db:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_DB: wiki
+      POSTGRES_PASSWORD: $WIKIJS_DB_PASSWORD
+      POSTGRES_USER: $WIKIJS_DB_USER
+    logging:
+      driver: "none"
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  wiki:
+    image: requarks/wiki:latest
+    depends_on:
+      - db
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: $WIKIJS_DB_USER
+      DB_PASS: $WIKIJS_DB_PASSWORD
+      DB_NAME: wiki
+    restart: unless-stopped
+    # ports:
+    #   - "80:3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wikijs.entrypoints=insecure"
+      - "traefik.http.routers.wikijs.rule=Host(`wiki.docker.localhost`)"
+      - "traefik.http.services.wikijs.loadbalancer.server.port=3000"
+      # - "traefik.http.routers.wikijs.tls.certresolver=le"
+
+volumes:
+  db-data:
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

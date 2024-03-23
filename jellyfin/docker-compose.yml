@@ -1,0 +1,37 @@
+---
+version: "3"
+services:
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - UMASK=022 #optional
+    volumes:
+      - ./config:/config
+      - $MEDIA_FOLDER:/data/
+      # - $TVSERIES_FOLDER:/data/tvshows
+      # - $MOVIES_FOLDER:/data/movies
+      # - $CONCERTS_FOLDER:/data/concerts
+      # - /path for transcoding:/transcode #optional
+      # - /opt/vc/lib:/opt/vc/lib #optional
+    ports:
+      - 8096:8096
+    #   - 8920:8920 #optional
+    # devices:
+    #   - /dev/dri:/dev/dri #optional
+    #     # - /dev/vchiq:/dev/vchiq #optional
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jellyfin.entrypoints=insecure"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.docker.localhost`)"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+      # - "traefik.http.routers.jellyfin.tls.certresolver=le"
+
+networks:
+  default:
+    name: $DEFAULT_NETWORK
+    external: true

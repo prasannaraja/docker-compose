@@ -1,0 +1,37 @@
+---
+version: "2"
+services:
+  piwigo:
+    image: lscr.io/linuxserver/piwigo
+    container_name: piwigo
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - ./config:/config
+    # ports:
+    #   - 80:80
+    restart: unless-stopped
+    links:
+      - piwigo_db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.piwigo.entrypoints=insecure"
+      - "traefik.http.routers.piwigo.rule=Host(`piwigo.docker.localhost`)"
+      - "traefik.http.services.piwigo.loadbalancer.server.port=80"
+      # - "traefik.http.routers.piwigo.tls.certresolver=le"
+  piwigo_db:
+    image: mariadb
+    volumes:
+      - piwigo_db:/var/lib/mysql
+    env_file:
+      - ./db.env
+
+volumes:
+  piwigo_db:
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

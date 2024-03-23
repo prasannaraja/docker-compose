@@ -1,0 +1,29 @@
+---
+version: "3"
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - UMASK=022 #optional
+    volumes:
+      - ./config:/config
+      - $SERIES_FOLDER:/tv
+      - $DOWNLOADS_FOLDER:/downloads
+        # ports:
+        #   - 8989:8989
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.entrypoints=insecure"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.docker.localhost`)"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+      # - "traefik.http.routers.sonarr.tls.certresolver=le"
+
+networks:
+  default:
+    name: $DEFAULT_NETWORK
+    external: true

@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_SA_PASSWORD=sasa@123"
+    ports:
+      - "1401:1433"
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - "MONGO_INITDB_ROOT_USERNAME=admin"
+      - "MONGO_INITDB_ROOT_PASSWORD=admin@123"
+
+networks:
+  # Network for infrastructure
+  # docker network create --driver bridge KatalystInfraNetwork
+
+  # docker network create --driver bridge katalyst.infra
+  # docker network create --driver bridge katalyst.microServices
+  # docker network create --driver bridge katalyst.gatewayServices
+  default:
+    name: local.infra
+    external: true

@@ -1,0 +1,23 @@
+---
+version: "3"
+services:
+  libretranslate:
+    container_name: libretranslate
+    image: libretranslate/libretranslate:latest
+    environment:
+      - LT_FRONTEND_LANGUAGE_SOURCE=en
+      - LT_FRONTEND_LANGUAGE_TARGET=fr
+    # ports:
+    #   - 5000:5000
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.libretranslate.entrypoints=insecure"
+      - "traefik.http.routers.libretranslate.rule=Host(`libretranslate.docker.localhost`)"
+      - "traefik.http.services.libretranslate.loadbalancer.server.port=5000"
+        # - "traefik.http.routers.libretranslate.tls.certresolver=le"
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

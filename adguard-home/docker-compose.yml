@@ -1,0 +1,39 @@
+---
+version: "3"
+services:
+  adguardhome:
+    image: adguard/adguardhome:latest
+    volumes:
+      - ./conf:/opt/adguardhome/conf
+      - ./work:/opt/adguardhome/work
+    networks:
+      - traefik-network
+    ports:
+      # DNS
+      - 53:53
+        # # DHCP server
+        # - 67:67/udp
+        # - 68:68/udp
+        # HTTPS/DNS-over-HTTPS
+      - 443:443/tcp
+        # DNS-over-TLS
+      - 853:853/tcp
+        # DNS-over-QUIC
+      - 853:853/udp
+        # DNSCrypt
+      - 5443:5443/tcp
+      - 5443:5443/udp
+        # WebUI
+      - 3000:3000/tcp
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.adguardhome.entrypoints=insecure"
+      - "traefik.http.routers.adguardhome.rule=Host(`adguard.docker.localhost`)"
+      - "traefik.http.routers.adguardhome.tls=true"
+      - "traefik.http.services.adguardhome.loadbalancer.server.port=3000"
+      # - "traefik.http.routers.adguardhome.tls.certresolver=le"
+
+networks:
+  traefik-network:
+    external: true

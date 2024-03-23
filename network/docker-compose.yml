@@ -1,0 +1,9 @@
+version: '3.8'
+
+networks:
+  katalyst.infra:
+    driver: bridge
+  katalyst.microServices:
+    driver: bridge
+  katalyst.gatewayServices:
+    driver: bridge

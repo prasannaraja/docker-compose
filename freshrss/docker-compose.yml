@@ -1,0 +1,26 @@
+---
+version: "2"
+services:
+  freshrss:
+    image: lscr.io/linuxserver/freshrss
+    container_name: freshrss
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - ./config:/config
+    # ports:
+    #   - 80:80
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.freshrss.entrypoints=insecure"
+      - "traefik.http.routers.freshrss.rule=Host(`freshrss.docker.localhost`)"
+      - "traefik.http.services.freshrss.loadbalancer.server.port=80"
+      # - "traefik.http.routers.freshrss.tls.certresolver=le"
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

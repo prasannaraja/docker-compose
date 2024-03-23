@@ -1,0 +1,22 @@
+---
+version: "3"
+services:
+  bitwarden:
+    image: bitwardenrs/server:latest
+    networks:
+      - traefik-network
+    volumes:
+      - ./data/:/data/
+    # ports:
+    #   - 80:80
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bitwarden.entrypoints=insecure"
+      - "traefik.http.routers.bitwarden.rule=Host(`bitwarden.docker.localhost`)"
+      - "traefik.http.services.bitwarden.loadbalancer.server.port=80"
+        # - "traefik.http.routers.bitwarden.tls.certresolver=le"
+
+networks:
+  traefik-network:
+    external: true

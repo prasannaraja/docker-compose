@@ -1,0 +1,23 @@
+---
+version: "3"
+services:
+  miniserve:
+    image: svenstaro/miniserve
+    container_name: miniserve
+    volumes:
+      - $DATA_FOLDER:/tmp
+    # ports:
+    #   - 8080:8080
+    restart: always
+    command: /tmp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.miniserve.entrypoints=insecure"
+      - "traefik.http.routers.miniserve.rule=Host(`miniserve.docker.localhost`)"
+      - "traefik.http.services.miniserve.loadbalancer.server.port=8080"
+      # - "traefik.http.routers.miniserve.tls.certresolver=le"
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

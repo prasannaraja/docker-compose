@@ -1,0 +1,28 @@
+---
+version: "3"
+services:
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    # ports:
+    #  - 3000:3000
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_USER: $GF_SECURITY_ADMIN_USER
+      GF_SECURITY_ADMIN_PASSWORD: $GF_SECURITY_ADMIN_PASSWORD
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.entrypoints=insecure"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.docker.localhost`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      # - "traefik.http.routers.grafana.tls.certresolver=le"
+
+volumes:
+  grafana-storage:
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

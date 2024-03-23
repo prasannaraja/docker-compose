@@ -1,0 +1,28 @@
+---
+version: "2.1"
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web
+    networks:
+      - traefik-network
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/Paris
+      - DOCKER_MODS=lscr.io/linuxserver/calibre-web:calibre
+    volumes:
+      - ./config:/config
+      - $MEDIA_FOLDER:/books
+    # ports:
+    #   - 8083:8083
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.calibre.entrypoints=insecure"
+      - "traefik.http.routers.calibre.rule=Host(`calibre.docker.localhost`)"
+      - "traefik.http.services.calibre.loadbalancer.server.port=8083"
+        # - "traefik.http.routers.calibre.tls.certresolver=le"
+
+networks:
+  traefik-network:
+    external: true

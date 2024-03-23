@@ -1,0 +1,23 @@
+---
+version: "3"
+services:
+  airsonicrefix:
+    networks:
+      - traefik-network
+    image: tamland/airsonic-refix:latest
+    environment:
+      - TZ=Europe/Paris
+      - SERVER_URL=$AIRSONIC_URL
+    # ports:
+    #   - 80:8080
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.airsonicrefix.entrypoints=insecure"
+      - "traefik.http.routers.airsonicrefix.rule=Host(`airsonic-refix.docker.localhost`)"
+      - "traefik.http.services.airsonicrefix.loadbalancer.server.port=80"
+        # - "traefik.http.routers.airsonicrefix.tls.certresolver=le"
+
+networks:
+  traefik-network:
+    external: true

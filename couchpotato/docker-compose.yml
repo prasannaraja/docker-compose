@@ -1,0 +1,29 @@
+---
+version: "2.1"
+services:
+  couchpotato:
+    image: lscr.io/linuxserver/couchpotato
+    container_name: couchpotato
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - UMASK=022
+    volumes:
+      - ./config:/config
+      - $DOWNLOADS_FOLDER:/downloads
+      - $MOVIES_FOLDER:/movies
+    # ports:
+    #   - 5050:5050
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.couchpotato.entrypoints=insecure"
+      - "traefik.http.routers.couchpotato.rule=Host(`couchpotato.docker.localhost`)"
+      - "traefik.http.services.couchpotato.loadbalancer.server.port=5050"
+        # - "traefik.http.routers.couchpotato.tls.certresolver=le"
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

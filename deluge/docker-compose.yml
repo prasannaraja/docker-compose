@@ -1,0 +1,31 @@
+---
+version: "2"
+services:
+  deluge:
+    image: lscr.io/linuxserver/deluge
+    container_name: deluge
+    restart: unless-stopped
+    # web ui at port 8112
+    # ports:
+    #   - "8112:8112"
+    # network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - UMASK=022 #optional
+      - DELUGE_LOGLEVEL=error #optional
+    volumes:
+      - ./config:/config
+      - $DOWNLOAD_FOLDER:/downloads
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.deluge.entrypoints=insecure"
+      - "traefik.http.routers.deluge.rule=Host(`deluge.docker.localhost`)"
+      - "traefik.http.services.deluge.loadbalancer.server.port=8112"
+        # - "traefik.http.routers.deluge.tls.certresolver=le"
+
+networks:
+  default:
+    external:
+      name: $DEFAULT_NETWORK

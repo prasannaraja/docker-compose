@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis-server
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - redis:/data
+    environment:
+      - REDIS_PASSWORD=redis
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+volumes:
+  redis:
+    driver: local
+
+networks:
+  # Network for infrastructure
+  # docker network create --driver bridge KatalystInfraNetwork
+
+  # docker network create --driver bridge katalyst.infra
+  # docker network create --driver bridge katalyst.microServices
+  # docker network create --driver bridge katalyst.gatewayServices
+  default:
+    name: katalyst.infra
+    external: true
