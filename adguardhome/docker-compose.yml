@@ -10,6 +10,8 @@ services:
         # # DHCP server
         # - 67:67/udp
         # - 68:68/udp
+        # HTTP
+      - 80:80
         # HTTPS/DNS-over-HTTPS
       - 443:443/tcp
         # DNS-over-TLS
@@ -31,7 +33,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.adguardhome.entrypoints=insecure"
       - "traefik.http.routers.adguardhome.rule=Host(`adguard.docker.localhost`)"
-      - "traefik.http.services.adguardhome.loadbalancer.server.port=3000"
+      - "traefik.http.services.adguardhome.loadbalancer.server.port=80"
       # - "traefik.http.routers.adguardhome.tls.certresolver=le"
 
 networks:
