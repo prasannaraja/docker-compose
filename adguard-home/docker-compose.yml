@@ -4,8 +4,8 @@ services:
   adguardhome:
     image: adguard/adguardhome:latest
     volumes:
-      - ./conf:/opt/adguardhome/conf
-      - ./work:/opt/adguardhome/work
+      - /conf:/opt/adguardhome/conf
+      - /work:/opt/adguardhome/work
     networks:
       - traefik-network
     ports:
