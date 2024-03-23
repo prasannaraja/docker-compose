@@ -3,6 +3,7 @@ version: "3"
 services:
   traefik:
     image: traefik:latest
+    container_name: traefik
     # Enables the web UI and tells Traefik to listen to docker
     ports:
       # The HTTP port
