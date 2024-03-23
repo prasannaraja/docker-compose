@@ -6,7 +6,7 @@ services:
     # Enables the web UI and tells Traefik to listen to docker
     ports:
       # The HTTP port
-      - "80:80"
+      # - "80:80"
       # - "443:443"
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
