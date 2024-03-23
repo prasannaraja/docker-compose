@@ -11,6 +11,9 @@ services:
       # - "443:443"
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
+    networks:
+      - traefik-network
+    restart: always
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
@@ -21,8 +24,8 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=insecure"
       - "traefik.http.routers.traefik.rule=Host(`traefik.docker.localhost`)"
-      - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      # - "traefik.http.routers.traefik.tls.certresolver=le"
       #  # HTTP REDIRECT
       #- "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       #- "traefik.http.routers.redirect-https.rule=hostregexp(`{host:.+}`)"
