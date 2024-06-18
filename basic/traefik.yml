@@ -1,0 +1,17 @@
+api:
+  dashboard: true
+
+log:
+  level: DEBUG
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: true
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+  
