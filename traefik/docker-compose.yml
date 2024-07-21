@@ -16,8 +16,8 @@ services:
     restart: always
     volumes:
       # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
-      - "C:/docker/traefik/etc/traefik/traefik.yml:/etc/traefik/traefik.yml"
+      - //var/run/docker.sock:/var/run/docker.sock
+      - "C:/docker/traefik/traefik.yml:/etc/traefik/traefik.yml"
       # - "./certs:/etc/certs:ro"
       # - "./acme.json:/acme.json"
     labels:
@@ -32,6 +32,36 @@ services:
       #- "traefik.http.routers.redirect-https.entrypoints=insecure"
       #- "traefik.http.routers.redirect-https.middlewares=redirect-to-https"
 
+  traefik-mod-not-working:
+    image: traefik:latest
+    container_name: traefik
+    # Enables the web UI and tells Traefik to listen to docker
+    ports:
+      # The HTTP port
+      #- "80:80"
+      #- "443:443"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    networks:
+      - traefik-network
+    restart: always
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - //var/run/docker.sock:/var/run/docker.sock
+      - "C:/docker/basic/traefik/traefik.yml:/etc/traefik/traefik.yml"
+      - "C:/docker/basic/traefik/certs:/etc/certs:ro"
+      - "C:/docker/basic/traefik/acme.json:/acme.json"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=insecure"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.docker.localhost`)"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik.tls.certresolver=le"
+      #  # HTTP REDIRECT
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.redirect-https.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.redirect-https.entrypoints=insecure"
+      - "traefik.http.routers.redirect-https.middlewares=redirect-to-https"
 networks:
   traefik-network:
     external: true
