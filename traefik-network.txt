@@ -1,1 +1,2 @@
 docker network create --scope=swarm --attachable -d overlay traefik-network
+docker network create --scope=swarm --attachable -d overlay proxy
