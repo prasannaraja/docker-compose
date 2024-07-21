@@ -1,0 +1,40 @@
+# docker-compose.yml
+services:
+  gitlab-ce:
+    image: "gitlab/gitlab-ce:latest"
+    container_name: gitlab-ce
+    restart: always
+    hostname: "localhost"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost'
+    ports:
+      - "8111:80"
+      - "8113:443"
+    volumes:
+      - "e:/docker-images-data/gitlab/gitlab-ce/config:/etc/gitlab"
+      - "e:/docker-images-data/gitlab/gitlab-ce/logs:/var/log/gitlab"
+      - "e:/docker-images-data/gitlab/gitlab-ce/data:/var/opt/gitlab"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitlab-ce.entrypoints=web"
+      - "traefik.http.routers.gitlab-ce.rule=Host(`gitlab.local`)"
+      - "traefik.http.services.gitlab-ce.loadbalancer.server.port=8111"
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner
+    restart: always
+    depends_on:
+      - gitlab-ce
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "e:/docker-images-data/gitlab/gitlab-runner:/etc/gitlab-runner"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
