@@ -1,18 +1,14 @@
 version: "3.8"
 
-#docker run -d --name plex -p 32400:32400/tcp -p 3005:3005/tcp -p 8324:8324/tcp -p 32469:32469/tcp -p 1900:1900/udp -p 32410:32410/udp -p 32412:32412/udp -p 32413:32413/udp -p 32414:32414/udp -e TZ="Europe/Stockholm" -e PLEX_CLAIM="claim-_nxFhTDtyFUeLaLhCE9z" -v e:/plex-server/config:/config -v e:/plex-server/transcode:/transcode -v e:/plex-server/media:/media plexinc/pms-docker
-
-#docker run -d --name=transmission -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC -p 9091:9091 -v e:/transmission/config:/config -v e:/plex-server/media/movies:/downloads -v e:/transmission/watch:/watch --restart unless-stopped lscr.io/linuxserver/transmission:latest
-
 services:
-  plex-server:
+  plex:
     image: plexinc/pms-docker
     container_name: plex-server
     restart: on-failure
     volumes:
-      - C:/Docker/Plex-server/config:/config
-      - C:/Docker/Plex-server/transcode:/transcode
-      - C:/Docker/Plex-server/media:/media
+      - e:/docker/media/plex/config:/config
+      - e:/docker/media/plex/transcode:/transcode
+      - e:/docker/media/plex/media:/media
     environment:
       - "TZ=Europe/Stockholm"
       - "PLEX_CLAIM=claim-_nxFhTDtyFUeLaLhCE9z"
@@ -26,18 +22,37 @@ services:
       - "32412:32412/udp"
       - "32413:32413/udp"
       - "32414:32414/udp"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.plex.entrypoints=insecure"
+      - "traefik.http.routers.plex.rule=Host(`plex.localhost`)"
+      - "traefik.http.services.plex.loadbalancer.server.port=32400"
 
   transmission:
     image: lscr.io/linuxserver/transmission:latest
     container_name: transmission
     restart: unless-stopped
     volumes:
-      - C:/Docker/Transmission/config:/config
-      - C:/Docker/Plex-server/media/movies:/downloads
-      - C:/Docker/Transmission/watch:/watch
+      - e:/docker/media/transmission/config:/config
+      - e:/docker/media/transmission/watch:/watch
+      - e:/docker/media/plex/media/movies:/downloads
     ports:
       - "9091:9091"
+    networks:
+      - proxy
     environment:
       - "PUID=1000"
       - "PGID=1000"
       - "TZ=Etc/UTC"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.torrent.entrypoints=insecure"
+      - "traefik.http.routers.torrent.rule=Host(`torrent.localhost`)"
+      - "traefik.http.services.torrent.loadbalancer.server.port=9091"
+      # - "traefik.http.routers.adguardhome.tls.certresolver=le"
+
+networks:
+  traefik-network:
+    external: true
