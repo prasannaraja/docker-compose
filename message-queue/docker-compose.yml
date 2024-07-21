@@ -1,24 +1,22 @@
-version: '3.8'
-
 networks:
-  # Network for infrastructure
-  # docker network create --driver bridge KatalystInfraNetwork
-
-  # docker network create --driver bridge katalyst.infra
-  # docker network create --driver bridge katalyst.microServices
-  # docker network create --driver bridge katalyst.gatewayServices
-  default:
-    name: katalyst.infra
+  proxy:
     external: true
 
 services:
   rabbitmq:
     image: rabbitmq:management
-    container_name: rabbit-mq-server
+    container_name: rabbitmq
     restart: on-failure
     environment:
-     - RABBITMQ_DEFAULT_USER=admin
-     - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
     ports:
-     - "5672:5672"
-     - "8081:15672"
+      - "5672:5672"
+      - "8087:15672"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rabbitmq.entrypoints=web"
+      - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.local`)"
+      - "traefik.http.services.rabbitmq.loadbalancer.server.port=8087"
