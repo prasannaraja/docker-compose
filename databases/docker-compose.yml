@@ -3,27 +3,54 @@ version: "3.8"
 services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql
     environment:
       - "ACCEPT_EULA=Y"
       - "MSSQL_SA_PASSWORD=sasa@123"
     ports:
       - "1401:1433"
+    networks:
+      - proxy
 
   mongodb:
     image: mongo
+    container_name: mongodb
     ports:
       - "27017:27017"
+    networks:
+      - proxy
     environment:
       - "MONGO_INITDB_ROOT_USERNAME=admin"
       - "MONGO_INITDB_ROOT_PASSWORD=admin@123"
 
-networks:
-  # Network for infrastructure
-  # docker network create --driver bridge KatalystInfraNetwork
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    ports:
+      - 5432:5432
+    networks:
+      - proxy
+    environment:
+      POSTGRES_PASSWORD: postgres
 
-  # docker network create --driver bridge katalyst.infra
-  # docker network create --driver bridge katalyst.microServices
-  # docker network create --driver bridge katalyst.gatewayServices
-  default:
-    name: local.infra
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - 8082:8080
+    networks:
+      - proxy
+
+networks:
+  proxy:
     external: true
