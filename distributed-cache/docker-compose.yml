@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   redis:
     image: redis:latest
@@ -8,23 +6,20 @@ services:
     ports:
       - "6379:6379"
     command: redis-server --save 60 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
-    volumes: 
-      - redis:/data
+    networks:
+      - proxy
+    volumes:
+      - e:/docker/distributed-cache/redis/data:/data
     environment:
       - REDIS_PASSWORD=redis
       - REDIS_PORT=6379
       - REDIS_DATABASES=16
-volumes:
-  redis:
-    driver: local
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redis.entrypoints=web"
+      - "traefik.http.routers.redis.rule=Host(`redis.local`)"
+      - "traefik.http.services.redis.loadbalancer.server.port=6379"
 
 networks:
-  # Network for infrastructure
-  # docker network create --driver bridge KatalystInfraNetwork
-
-  # docker network create --driver bridge katalyst.infra
-  # docker network create --driver bridge katalyst.microServices
-  # docker network create --driver bridge katalyst.gatewayServices
-  default:
-    name: katalyst.infra
+  proxy:
     external: true
