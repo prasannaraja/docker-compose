@@ -6,20 +6,26 @@ services:
     restart: always
     ports:
       - 5432:5432
+    networks:
+      - traefik-network
     environment:
       - "POSTGRES_USER=metabase"
-        # - "POSTGRES_DB=metabase"
-      - "POSTGRES_PASSWORD=$PG_PASSWORD"
-        # - "PGDATA=/var/lib/postgresql/data"
-        # volumes:
-        # - ./pgdata:/var/lib/postgresql/data
-  metabase-app:
+      # - "POSTGRES_DB=metabase"
+      - "POSTGRES_PASSWORD=Welc0me123"
+      # - "PGDATA=/var/lib/postgresql/data"
+    # volumes:
+    # - c:/docker/metabase/pgdata:/var/lib/postgresql/data
+
+  metabase:
     image: metabase/metabase
-    # ports:
-    #   - "3000:3000"
+    container_name: metabase
+    #ports:
+    # - 3500:3500
+    networks:
+      - traefik-network
     volumes:
-      - ./plugins:/plugins
-      - ./metabase-data:/metabase-data
+      - c:/docker/metabase/plugins:/plugins
+      - c:/docker/metabase/metabase-data:/metabase-data
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.metabase.entrypoints=insecure"
@@ -31,7 +37,7 @@ services:
       - "MB_DB_DBNAME=metabase"
       - "MB_DB_PORT=5432"
       - "MB_DB_USER=metabase"
-      - "MB_DB_PASS=$PG_PASSWORD"
+      - "MB_DB_PASS=Welc0me123"
       - "MB_DB_HOST=postgres-db"
     depends_on:
       - postgres-db
@@ -39,6 +45,5 @@ services:
       - postgres-db
 
 networks:
-  default:
-    external:
-      name: $DEFAULT_NETWORK
+  traefik-network:
+    external: true
