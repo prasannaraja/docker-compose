@@ -2,6 +2,7 @@ services:
   traefik:
     image: traefik:latest # Use the latest stable version of Traefik
     container_name: traefik
+    restart: unless-stopped
     command:
       - "--api.insecure=true" # Enable the Traefik dashboard (insecure mode, for development only)
       - "--providers.docker=true" # Enable Docker as a provider
@@ -18,6 +19,25 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`traefik.local`)" # Define a router for the Traefik dashboard
       - "traefik.http.routers.api.service=api@internal"
+    networks:
+      - proxy
+
+  consul:
+    image: consul:1.15.4
+    container_name: consul
+    restart: on-failure
+    volumes:
+      - e:/docker-images-data/consul/config:/consul/config
+    ports:
+      - "8500:8500"
+      - "8600:8600/tcp"
+      - "8600:8600/udp"
+    command: "agent -server -bootstrap -ui -client=0.0.0.0"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.consul.entrypoints=web"
+      - "traefik.http.routers.consul.rule=Host(`consul.local`)"
+      - "traefik.http.services.consul.loadbalancer.server.port=8600"
     networks:
       - proxy
 

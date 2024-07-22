@@ -1,0 +1,209 @@
+apiVersion: v1
+kind: Node
+metadata:
+  annotations:
+    kubeadm.alpha.kubernetes.io/cri-socket: unix:///var/run/cri-dockerd.sock
+    node.alpha.kubernetes.io/ttl: "0"
+    volumes.kubernetes.io/controller-managed-attach-detach: "true"
+  creationTimestamp: "2024-07-18T20:22:02Z"
+  labels:
+    beta.kubernetes.io/arch: amd64
+    beta.kubernetes.io/os: linux
+    kubernetes.io/arch: amd64
+    kubernetes.io/hostname: docker-desktop
+    kubernetes.io/os: linux
+    node-role.kubernetes.io/control-plane: ""
+    node.kubernetes.io/exclude-from-external-load-balancers: ""
+  name: docker-desktop
+  resourceVersion: "229120"
+  uid: e9ad8a0c-fc36-43a6-b2fe-8fbfc9d581fa
+spec: {}
+status:
+  addresses:
+    - address: 192.168.65.3
+      type: InternalIP
+    - address: docker-desktop
+      type: Hostname
+  allocatable:
+    cpu: "8"
+    ephemeral-storage: "972991057538"
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 7985088Ki
+    pods: "110"
+  capacity:
+    cpu: "8"
+    ephemeral-storage: 1055762868Ki
+    hugepages-1Gi: "0"
+    hugepages-2Mi: "0"
+    memory: 8087488Ki
+    pods: "110"
+  conditions:
+    - lastHeartbeatTime: "2024-07-20T20:06:57Z"
+      lastTransitionTime: "2024-07-18T20:22:00Z"
+      message: kubelet has sufficient memory available
+      reason: KubeletHasSufficientMemory
+      status: "False"
+      type: MemoryPressure
+    - lastHeartbeatTime: "2024-07-20T20:06:57Z"
+      lastTransitionTime: "2024-07-18T20:22:00Z"
+      message: kubelet has no disk pressure
+      reason: KubeletHasNoDiskPressure
+      status: "False"
+      type: DiskPressure
+    - lastHeartbeatTime: "2024-07-20T20:06:57Z"
+      lastTransitionTime: "2024-07-18T20:22:00Z"
+      message: kubelet has sufficient PID available
+      reason: KubeletHasSufficientPID
+      status: "False"
+      type: PIDPressure
+    - lastHeartbeatTime: "2024-07-20T20:06:57Z"
+      lastTransitionTime: "2024-07-18T20:22:02Z"
+      message: kubelet is posting ready status
+      reason: KubeletReady
+      status: "True"
+      type: Ready
+  daemonEndpoints:
+    kubeletEndpoint:
+      Port: 10250
+  images:
+    - names:
+        - photoprism/photoprism@sha256:b8dc65e14808021dff7fdb60723fe7e7cd224db1fd356c4e3f1892fa4912e4e4
+        - photoprism/photoprism:latest
+      sizeBytes: 2085427400
+    - names:
+        - mcr.microsoft.com/mssql/server@sha256:c4369c38385eba011c10906dc8892425831275bb035d5ce69656da8e29de50d8
+        - mcr.microsoft.com/mssql/server:2022-latest
+      sizeBytes: 1580418551
+    - names:
+        - grafana/alloy@sha256:21248ad12831ad8f7279eb40ecd161b2574c2194ca76e7413996666d09beef6c
+        - grafana/alloy:v1.0.0
+      sizeBytes: 766933295
+    - names:
+        - bitnami/mysql@sha256:22e5ab9aaea751c959ea513c815ce826a378c77e9a32172efd0a7028f0a9e571
+        - bitnami/mysql:8.4.1-debian-12-r3
+      sizeBytes: 734273582
+    - names:
+        - ghcr.io/ajnart/homarr@sha256:e4f51bc422be187c878082060eb720da7de64e5c650ea3fa86ab80981950decd
+        - ghcr.io/ajnart/homarr:latest
+      sizeBytes: 664313993
+    - names:
+        - docker/desktop-kubernetes@sha256:ee4d0cb41223b7c5e27369aacedcbc17000df6990f03f5bb725f9e1b42678d34
+        - docker/desktop-kubernetes:kubernetes-v1.29.2-cni-v1.4.0-critools-v1.29.0-cri-dockerd-v0.3.11-1-debian
+      sizeBytes: 438872800
+    - names:
+        - mariadb@sha256:ada7996123f3101c4cd81c60a54cf990b61038d473096608e002c32c294d79ea
+        - mariadb:10.5
+      sizeBytes: 394341643
+    - names:
+        - plexinc/pms-docker@sha256:ee83eb44a8329ad70d9783582f0f3cda1f5d1671213f80ac996e7d4b549dcc52
+        - plexinc/pms-docker:latest
+      sizeBytes: 349036320
+    - names:
+        - kong@sha256:14f09dd2644c5800c3a1c3d6a636721fe7d740a9d23d508df3814a5dfd9d716b
+        - kong:3.6
+      sizeBytes: 297263665
+    - names:
+        - portainer/portainer-docker-extension@sha256:908d04d20e86f07a50b0f1a029a111b89aa3089b7fc7fdf68ec1c71b025f36cd
+        - portainer/portainer-docker-extension:2.19.4
+      sizeBytes: 293624300
+    - names:
+        - portainer/portainer-ce@sha256:4a1ceadd7f7898d9190ee0a6d22234c4323aefd80e796e84f5e57127f74370f1
+        - portainer/portainer-ce:2.19.5
+      sizeBytes: 292768236
+    - names:
+        - portainer/portainer@sha256:47b064434edf437badf7337e516e07f64477485c8ecc663ddabbe824b20c672d
+        - portainer/portainer:latest
+      sizeBytes: 286752740
+    - names:
+        - actualbudget/actual-server@sha256:12cb8d9b8e653b66e185360e980c08e90f8c1f40bf4fb34dcb90eb270329d996
+        - actualbudget/actual-server:latest
+      sizeBytes: 257551330
+    - names:
+        - adminer@sha256:1cdc0bfddc5196e9fde4c2f9581a55e5e8fb3f063af4dc60ceb46ce4248c1ff3
+        - adminer:latest
+      sizeBytes: 250241414
+    - names:
+        - lscr.io/linuxserver/radarr@sha256:1eaf9e83fca2b9170d4f49f6c0e55ba38693718e7815743a9ec297d199ab1e73
+        - lscr.io/linuxserver/radarr:latest
+      sizeBytes: 201378200
+    - names:
+        - kubernetesui/dashboard-web@sha256:4445b31a2c25c875e2df8ca103a8e3f3275778d10065c7c011f6ca42cd4bec5f
+        - kubernetesui/dashboard-web:1.4.0
+      sizeBytes: 181008634
+    - names:
+        - traefik@sha256:c612189cbcee82f2301ac337d38e581f806719db6fd5049e3352dae148313b18
+        - traefik:latest
+      sizeBytes: 175551470
+    - names:
+        - registry.k8s.io/etcd:3.5.10-0
+      sizeBytes: 147502300
+    - names:
+        - registry.k8s.io/kube-apiserver:v1.29.2
+      sizeBytes: 127316790
+    - names:
+        - registry.k8s.io/kube-controller-manager:v1.29.2
+      sizeBytes: 121947313
+    - names:
+        - registry.k8s.io/kube-proxy:v1.29.2
+      sizeBytes: 82283543
+    - names:
+        - lscr.io/linuxserver/transmission@sha256:17b10956b1711c989140023cbd8a71d3683f6bbb1b5d1ee0c8cdac45b028fffc
+        - lscr.io/linuxserver/transmission:latest
+      sizeBytes: 75535908
+    - names:
+        - adguard/adguardhome@sha256:d16cc7517ab96f843e7f8bf8826402dba98f5e6b175858920296243332391589
+        - adguard/adguardhome:latest
+      sizeBytes: 69987067
+    - names:
+        - registry.k8s.io/coredns/coredns:v1.11.1
+      sizeBytes: 59820619
+    - names:
+        - registry.k8s.io/kube-scheduler:v1.29.2
+      sizeBytes: 59540634
+    - names:
+        - kubernetesui/dashboard-api@sha256:60595892c2cf21b7fbd09324120e339e0e44874cd96267bc4712cb86694835f1
+        - kubernetesui/dashboard-api:1.7.0
+      sizeBytes: 43980840
+    - names:
+        - docker/desktop-storage-provisioner@sha256:115d77efe6e256cefbcdf1d3292bede9339ef3952a2a83393cea217a3ffdef36
+        - docker/desktop-storage-provisioner:v2.0
+      sizeBytes: 41850220
+    - names:
+        - kubernetesui/dashboard-auth@sha256:07135c09e9ff6faf1370e0b105fa22d38f79e2bc671f248814066630fbf026a1
+        - kubernetesui/dashboard-auth:1.1.3
+      sizeBytes: 40073256
+    - names:
+        - docker/desktop-vpnkit-controller@sha256:7ecf567ea07095f9af6ce2004055d4d37e4ee3bc19b553cce2f6c37ee9b916bf
+        - docker/desktop-vpnkit-controller:dc331cb22850be0cdd97c84a9cfecaf44a1afb6e
+      sizeBytes: 36226360
+    - names:
+        - kubernetesui/dashboard-metrics-scraper@sha256:7747d363c9fee7392597a683c2853a2052710d620ada0e2323561bb0f4d32b4f
+        - kubernetesui/dashboard-metrics-scraper:1.1.1
+      sizeBytes: 35289128
+    - names:
+        - containrrr/watchtower@sha256:6dd50763bbd632a83cb154d5451700530d1e44200b268a4e9488fefdfcf2b038
+        - containrrr/watchtower:latest
+      sizeBytes: 14682465
+    - names:
+        - docker/resource-usage-extension@sha256:f98c18d550ebeadfbdd616730979c877408027b79a9a56a2f82da1ec36bc7706
+        - docker/resource-usage-extension:1.0.4
+      sizeBytes: 14118560
+    - names:
+        - artifision/live-charts-docker-extension@sha256:fe26c765e0c92de51dc9876e6e79ba88f7cb6c421d97c2fa867b3d7d9ad1c9c5
+        - artifision/live-charts-docker-extension:1.2.0
+      sizeBytes: 8682987
+    - names:
+        - registry.k8s.io/pause:3.9
+      sizeBytes: 743952
+  nodeInfo:
+    architecture: amd64
+    bootID: 214cb7f6-b409-41b8-8864-76aba87addad
+    containerRuntimeVersion: docker://27.0.3
+    kernelVersion: 5.15.90.1-microsoft-standard-WSL2
+    kubeProxyVersion: v1.29.2
+    kubeletVersion: v1.29.2
+    machineID: 7e405376-9c00-4e09-97c9-e06105acb730
+    operatingSystem: linux
+    osImage: Docker Desktop
+    systemUUID: 7e405376-9c00-4e09-97c9-e06105acb730
