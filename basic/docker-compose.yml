@@ -2,7 +2,6 @@ services:
   traefik:
     image: traefik:latest # Use the latest stable version of Traefik
     container_name: traefik
-    restart: unless-stopped
     command:
       - "--api.insecure=true" # Enable the Traefik dashboard (insecure mode, for development only)
       - "--providers.docker=true" # Enable Docker as a provider
@@ -14,30 +13,11 @@ services:
       - "8080:8080" # Expose port 8080 for the Traefik dashboard
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro" # Mount Docker socket to allow Traefik to interact with the Docker daemon
-      - "e:/docker-images-data/traefik/traefik.yml:/etc/traefik/traefik.yml" # Optional: Traefik static configuration file
+      ##- "e:/docker-images-data/traefik/traefik.yml:/etc/traefik/traefik.yml" # Optional: Traefik static configuration file
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`traefik.local`)" # Define a router for the Traefik dashboard
       - "traefik.http.routers.api.service=api@internal"
-    networks:
-      - proxy
-
-  consul:
-    image: consul:1.15.4
-    container_name: consul
-    restart: on-failure
-    volumes:
-      - e:/docker-images-data/consul/config:/consul/config
-    ports:
-      - "8500:8500"
-      - "8600:8600/tcp"
-      - "8600:8600/udp"
-    command: "agent -server -bootstrap -ui -client=0.0.0.0"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.consul.entrypoints=web"
-      - "traefik.http.routers.consul.rule=Host(`consul.local`)"
-      - "traefik.http.services.consul.loadbalancer.server.port=8600"
     networks:
       - proxy
 
@@ -140,6 +120,35 @@ services:
       - "traefik.http.routers.torrent.entrypoints=web"
       - "traefik.http.routers.torrent.rule=Host(`transmission.local`)"
       - "traefik.http.services.torrent.loadbalancer.server.port=9091"
+
+  airsonic:
+    image: lscr.io/linuxserver/airsonic
+    container_name: airsonic
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      # - CONTEXT_PATH=URL_BASE #optional
+      # - JAVA_OPTS=options #optional
+    volumes:
+      - e:/docker-images-data/airsonic/config:/config
+      - e:/docker-images-data/airsonic/music:/music
+      - e:/docker-images-data/airsonic/playlists:/playlists
+      - e:/docker-images-data/airsonic/podcasts:/podcasts
+      # - /path/to/other media:/media #optional
+    ports:
+      - 4040:4040
+    # devices:
+    #   - /dev/snd:/dev/snd #optional
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.airsonic.entrypoints=web"
+      - "traefik.http.routers.airsonic.rule=Host(`airsonic.local`)"
+      - "traefik.http.services.airsonic.loadbalancer.server.port=4040"
+        # - "traefik.http.routers.airsonic.tls.certresolver=le"
 
   actualbudget:
     image: actualbudget/actual-server:latest
