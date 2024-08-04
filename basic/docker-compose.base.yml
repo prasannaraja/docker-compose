@@ -21,7 +21,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`traefik.local`)"
       - "traefik.http.routers.api.service=api@internal"
-
   #ad-block
   adguardhome:
     image: adguard/adguardhome:latest
@@ -51,7 +50,26 @@ services:
       - "traefik.http.routers.adguard.entrypoints=web"
       - "traefik.http.routers.adguard.rule=Host(`adguard.local`)"
       - "traefik.http.services.adguard.loadbalancer.server.port=3000"
-
+  #docker-tool
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - e:/docker-images-data/portainer/data:/data
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.entrypoints=web"
+      - "traefik.http.routers.portainer.rule=Host(`docker.local`)"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
   #databases
   mariadb:
     image: mariadb:10.5
