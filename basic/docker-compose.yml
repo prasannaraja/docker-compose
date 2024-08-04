@@ -1,290 +1,43 @@
 services:
+  #base
   traefik:
-    image: traefik:latest # Use the latest stable version of Traefik
-    container_name: traefik
-    command:
-      - "--api.insecure=true" # Enable the Traefik dashboard (insecure mode, for development only)
-      - "--providers.docker=true" # Enable Docker as a provider
-      - "--entrypoints.web.address=:80" # Define the entrypoint for HTTP
-      - "--entrypoints.websecure.address=:443" # Define the entrypoint for HTTPS
-    ports:
-      - "80:80" # Expose port 80 for HTTP
-      - "443:443" # Expose port 443 for HTTPS
-      - "8080:8080" # Expose port 8080 for the Traefik dashboard
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro" # Mount Docker socket to allow Traefik to interact with the Docker daemon
-      ##- "e:/docker-images-data/traefik/traefik.yml:/etc/traefik/traefik.yml" # Optional: Traefik static configuration file
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`traefik.local`)" # Define a router for the Traefik dashboard
-      - "traefik.http.routers.api.service=api@internal"
-    networks:
-      - proxy
-
+    extends:
+      file: docker-compose.base.yml
+      service: traefik
   adguardhome:
-    image: adguard/adguardhome:latest
-    container_name: adguard-home
-    restart: unless-stopped
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-      - "3000:3000/tcp"
-      - "853:853/tcp"
-      - "784:784/udp"
-      - "853:853/udp"
-      - "8853:8853/udp"
-      - "5443:5443/tcp"
-      - "5443:5444/udp"
-    volumes:
-      - e:/docker-images-data/adguard/workdir:/opt/adguardhome/work
-      - e:/docker-images-data/adguard/confdir:/opt/adguardhome/conf
-    environment:
-      - TZ=Europe/Malta
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.adguard.entrypoints=web"
-      - "traefik.http.routers.adguard.rule=Host(`adguard.local`)"
-      - "traefik.http.services.adguard.loadbalancer.server.port=3000"
-    networks:
-      - proxy
-
-  plex:
-    image: plexinc/pms-docker
-    container_name: plex-server
-    restart: on-failure
-    volumes:
-      - e:/docker-images-data/plex/config:/config
-      - e:/docker-images-data/plex/media:/media
-      - e:/docker-images-data/plex/transcode:/transcode
-    environment:
-      - "TZ=Europe/Stockholm"
-      - "PLEX_CLAIM=claim-_nxFhTDtyFUeLaLhCE9z"
-    ports:
-      - "32400:32400/tcp"
-      - "3005:3005/tcp"
-      - "8324:8324/tcp"
-      - "32469:32469/tcp"
-      - "1900:1900/udp"
-      - "32410:32410/udp"
-      - "32412:32412/udp"
-      - "32413:32413/udp"
-      - "32414:32414/udp"
-    networks:
-      - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.plex.entrypoints=web"
-      - "traefik.http.routers.plex.rule=Host(`plex.local`)"
-      - "traefik.http.services.plex.loadbalancer.server.port=32400"
-
-  radarr:
-    image: lscr.io/linuxserver/radarr:latest
-    container_name: radarr
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-    networks:
-      - proxy
-    volumes:
-      - e:/docker-images-data/radarr/data:/config
-      - e:/docker-images-data/radarr/download-client-downloads:/downloads #optional
-      - e:/docker-images-data/plex/media/movies:/movies #optional
-    ports:
-      - 7878:7878
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.radarr.entrypoints=web"
-      - "traefik.http.routers.radarr.rule=Host(`radarr.local`)"
-      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
-
-  transmission:
-    image: lscr.io/linuxserver/transmission:latest
-    container_name: transmission
-    restart: unless-stopped
-    volumes:
-      - e:/docker-images-data/transmission/config:/config
-      - e:/docker-images-data/transmission/watch:/watch
-      - e:/docker-images-data/plex/media/movies:/downloads
-    ports:
-      - "9091:9091"
-    networks:
-      - proxy
-    environment:
-      - "PUID=1000"
-      - "PGID=1000"
-      - "TZ=Etc/UTC"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.torrent.entrypoints=web"
-      - "traefik.http.routers.torrent.rule=Host(`transmission.local`)"
-      - "traefik.http.services.torrent.loadbalancer.server.port=9091"
-
-  airsonic:
-    image: lscr.io/linuxserver/airsonic
-    container_name: airsonic
-    networks:
-      - proxy
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Paris
-      # - CONTEXT_PATH=URL_BASE #optional
-      # - JAVA_OPTS=options #optional
-    volumes:
-      - e:/docker-images-data/airsonic/config:/config
-      - e:/docker-images-data/airsonic/music:/music
-      - e:/docker-images-data/airsonic/playlists:/playlists
-      - e:/docker-images-data/airsonic/podcasts:/podcasts
-      # - /path/to/other media:/media #optional
-    ports:
-      - 4040:4040
-    # devices:
-    #   - /dev/snd:/dev/snd #optional
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.airsonic.entrypoints=web"
-      - "traefik.http.routers.airsonic.rule=Host(`airsonic.local`)"
-      - "traefik.http.services.airsonic.loadbalancer.server.port=4040"
-        # - "traefik.http.routers.airsonic.tls.certresolver=le"
-
-  actualbudget:
-    image: actualbudget/actual-server:latest
-    container_name: actual-budget
-    ports:
-      - "5006:5006"
-    networks:
-      - proxy
-    volumes:
-      - e:/docker-images-data/actualbudget/data:/data
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.actualbudget.entrypoints=web"
-      - "traefik.http.routers.actualbudget.rule=Host(`actuals.local`)"
-      - "traefik.http.services.actualbudget.loadbalancer.server.port=5006"
-
-  homarr:
-    container_name: homarr
-    image: ghcr.io/ajnart/homarr:latest
-    restart: unless-stopped
-    networks:
-      - proxy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
-      - e:/docker-images-data/homarr/configs:/app/data/configs
-      - e:/docker-images-data/homarr/icons:/app/public/icons
-      - e:/docker-images-data/homarr/data:/data
-    ports:
-      - "7575:7575"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.homarr.entrypoints=web"
-      - "traefik.http.routers.homarr.rule=Host(`homarr.local`)"
-      - "traefik.http.services.homarr.loadbalancer.server.port=7575"
-
-  photoprism:
-    image: photoprism/photoprism:latest
-    restart: unless-stopped
-    container_name: photoprism
-    user: "1000:1000"
-    security_opt:
-      - seccomp:unconfined
-      - apparmor:unconfined
-    networks:
-      - proxy
-    ports:
-      - 2342:2342 # [local port]:[container port]
-    # Uncomment the following lines to enable regular health checks (causes automatic restarts):
-    # healthcheck:
-    #   test: ["CMD", "photoprism", "status"]
-    #   interval: 60s
-    #   timeout: 15s
-    #   retries: 5
-    #
-    # Run "photoprism help" and "photoprism config" too see all config options and current values:
-    environment: # Run "photoprism help" and "photoprism config" too see all config options and current values
-      PHOTOPRISM_ADMIN_PASSWORD: "Welc0me$" # Initial admin password: PLEASE CHANGE!
-      PHOTOPRISM_DEBUG: "false" # Run in debug mode (shows additional log messages)
-      PHOTOPRISM_PUBLIC: "false" # No authentication required (disables password protection)
-      PHOTOPRISM_READONLY: "false" # Don't modify originals directory (reduced functionality)
-      PHOTOPRISM_UPLOAD_NSFW: "true" # Allow uploads that MAY be offensive
-      PHOTOPRISM_DETECT_NSFW: "false" # Flag photos as private that MAY be offensive
-      PHOTOPRISM_EXPERIMENTAL: "false" # Enable experimental features
-      PHOTOPRISM_SITE_URL: "http://photoprism.local" # Canonical / public site URL
-      PHOTOPRISM_SITE_TITLE: "PhotoPrism"
-      PHOTOPRISM_SITE_CAPTION: "Browse Your Life"
-      PHOTOPRISM_SITE_DESCRIPTION: ""
-      PHOTOPRISM_SITE_AUTHOR: ""
-      PHOTOPRISM_HTTP_HOST: "0.0.0.0"
-      PHOTOPRISM_HTTP_PORT: 2342
-      PHOTOPRISM_SETTINGS_HIDDEN: "false" # Users can not view or change settings
-      #PHOTOPRISM_DATABASE_DRIVER: "sqlite" # SQLite is an embedded database that doesn't require a server
-      PHOTOPRISM_DATABASE_DRIVER: "mysql" # Use MariaDB instead of SQLite for improved performance
-      PHOTOPRISM_DATABASE_SERVER: "mariadb:3306"
-      PHOTOPRISM_DATABASE_NAME: "photoprism"
-      PHOTOPRISM_DATABASE_USER: "photoprism"
-      PHOTOPRISM_DATABASE_PASSWORD: "insecure"
-      PHOTOPRISM_SIDECAR_JSON: "true" # Automatically create JSON sidecar files using Exiftool
-      PHOTOPRISM_SIDECAR_YAML: "true" # Automatically backup metadata to YAML sidecar files
-      PHOTOPRISM_THUMB_FILTER: "lanczos" # Resample filter, best to worst: blackman, lanczos, cubic, linear
-      PHOTOPRISM_THUMB_UNCACHED: "false" # Enable on-demand thumbnail rendering (high memory and cpu usage)
-      PHOTOPRISM_THUMB_SIZE: 2048 # Pre-rendered thumbnail size limit (default 2048, min 720, max 7680)
-      # PHOTOPRISM_THUMB_SIZE: 4096                  # Retina 4K, DCI 4K (requires more storage); 7680 for 8K Ultra HD
-      PHOTOPRISM_THUMB_SIZE_UNCACHED: 7680 # On-demand rendering size limit (default 7680, min 720, max 7680)
-      PHOTOPRISM_JPEG_SIZE: 7680 # Size limit for converted image files in pixels (720-30000)
-      PHOTOPRISM_JPEG_QUALITY: 92 # Set to 95 for high-quality thumbnails (25-100)
-      PHOTOPRISM_DARKTABLE_PRESETS: "false" # Use darktable presets (disables concurrent raw to jpeg conversion)
-      # You may optionally set user, group and/or file permissions using environment variables:
-      # UID: 1000
-      # GID: 1000
-      # UMASK: 0000
-    volumes:
-      # Storage folder for settings, index & sidecar files (DON'T REMOVE):
-      - "e:/docker-images-data/photoprism/storage:/photoprism/storage"
-      # Your personal photo and video collection ([local path]:[container path]):
-      - "e:/docker-images-data/photoprism/Pictures:/photoprism/originals"
-      # Multiple folders can be indexed by mounting them as subfolders of /photoprism/originals:
-      - "e:/docker-images-data/photoprism/Family:/photoprism/originals/Family" # [folder_1]:/photoprism/originals/[folder_1]
-      - "e:/docker-images-data/photoprism/Friends:/photoprism/originals/Friends" # [folder_2]:/photoprism/originals/[folder_2]
-      # Mounting the import folder is optional (see docs):
-      - "e:/docker-images-data/photoprism/Import:/photoprism/import"
-    # Uncomment the following lines to use MariaDB instead of SQLite for improved performance & scalability:
-    #
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.photoprism.entrypoints=web"
-      - "traefik.http.routers.photoprism.rule=Host(`photoprism.local`)"
-      - "traefik.http.services.photoprism.loadbalancer.server.port=2342"
-    # - "traefik.http.routers.photoprism.tls.certresolver=le"
-    # Uncomment the following lines to upgrade automatically, whenever there is a new Docker image available:
-    #
-
+    extends:
+      file: docker-compose.base.yml
+      service: adguardhome
   mariadb:
-    image: mariadb:10.5
-    container_name: photodb
-    restart: unless-stopped
-    command: mysqld --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=50
-    volumes:
-      - "/var/lib/mysql"
-    environment:
-      MYSQL_ROOT_PASSWORD: Welc0me$$
-      MYSQL_USER: photoprism
-      MYSQL_PASSWORD: insecure
-      MYSQL_DATABASE: photoprism
-    networks:
-      - proxy
-
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    restart: unless-stopped
-    networks:
-      - proxy
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-
+    extends:
+      file: docker-compose.base.yml
+      service: mariadb
+  #services
+  actualbudget:
+    extends:
+      file: docker-compose.services.yml
+      service: actualbudget
+  photoprism:
+    extends:
+      file: docker-compose.services.yml
+      service: photoprism
+  transmission:
+    extends:
+      file: docker-compose.services.yml
+      service: transmission
+  plex:
+    extends:
+      file: docker-compose.services.yml
+      service: plex
+  radarr:
+    extends:
+      file: docker-compose.services.yml
+      service: radarr
+  airsonic:
+    extends:
+      file: docker-compose.services.yml
+      service: airsonic
+#networks
 networks:
   proxy:
     external: true

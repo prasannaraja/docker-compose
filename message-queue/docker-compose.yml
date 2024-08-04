@@ -11,8 +11,8 @@ services:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
     ports:
-      - "5672:5672"
       - "8087:15672"
+      - "5672:5672"
     networks:
       - proxy
     labels:

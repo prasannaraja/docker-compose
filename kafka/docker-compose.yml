@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  zookeeper:
+    image: zookeeper:3.4.10
+    container_name: zookeeper
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zookeeper:2888:3888
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - proxy
+
+  kafka:
+    image: confluentinc/cp-kafka:4.1.4
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9093:9093
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:19093,EXTERNAL://127.0.0.1:9093
+      KAFKA_BROKER_ID: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      TOPIC_AUTO_CREATE: 1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-broker-api-versions --bootstrap-server kafka:19093",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    hostname: kafka.local
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kafka.entrypoints=web"
+      - "traefik.http.routers.kafka.rule=Host(`kafka.local`)"
+      - "traefik.http.services.kafka.loadbalancer.server.port=9093"
+
+networks:
+  proxy:
+    external: true

@@ -1,27 +1,23 @@
-version: '3.8'
-
-networks:
-  # Network for infrastructure
- 
-  # docker network create --driver bridge katalyst.infra
-  # docker network create --driver bridge katalyst.microServices
-  # docker network create --driver bridge katalyst.gatewayServices
-  default:
-    name: katalyst.infra
-    external: true
-
 services:
   consul:
     image: consul:1.15.4
     container_name: consul
-    restart: on-failure
     volumes:
-    - consul-data:/consul/config
+      - consul-data:/consul/config
     ports:
       - "8500:8500"
       - "8600:8600/tcp"
       - "8600:8600/udp"
-    command: "agent -server -bootstrap -ui -client=0.0.0.0"
+    command: >
+      agent -server -bootstrap -ui -client=0.0.0.0
+      -bind=0.0.0.0
+      -advertise=192.168.0.65
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
 
 volumes:
   consul-data:
