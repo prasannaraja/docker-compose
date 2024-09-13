@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: reactive-resume-db
+    restart: always
+    ports:
+      - 5432:5432
+    networks:
+      - proxy
+    volumes:
+      - e:/docker-images-data/postgres/pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      start_period: 15s
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  server:
+    image: amruthpillai/reactive-resume:server-latest
+    container_name: reactive-resume-server
+    restart: always
+    ports:
+      - 4100:3100
+    networks:
+      - proxy
+    depends_on:
+      - postgres
+    environment:
+      - PUBLIC_URL=http://localhost:4000
+      - PUBLIC_SERVER_URL=http://localhost:4100
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - SECRET_KEY=uixbcfwzz02cBHwTGUOuY2cEKXu37qY8
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - JWT_SECRET=eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcyMzcxMzc5OCwiaWF0IjoxNzIzNzEzNzk4fQ.tKOBuisCStf1RiMBOdC7qtCSDYTj-WXW6YBh5lIf54s
+      - JWT_EXPIRY_TIME=604800
+
+  client:
+    image: amruthpillai/reactive-resume:client-latest
+    container_name: reactive-resume-client
+    restart: always
+    ports:
+      - 4000:3000
+    networks:
+      - proxy
+    depends_on:
+      - server
+    environment:
+      - PUBLIC_URL=http://localhost:4000
+      - PUBLIC_SERVER_URL=http://localhost:4100
+      - CHROME_PORT=8080
+      - CHROME_TOKEN=chrome_token
+      - CHROME_URL=ws://localhost:8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.client.entrypoints=web"
+      - "traefik.http.routers.client.rule=Host(`resume.local`)"
+      - "traefik.http.services.client.loadbalancer.server.port=4000"
+
+#networks
+networks:
+  proxy:
+    external: true

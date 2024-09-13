@@ -1,0 +1,15 @@
+services:
+  #base
+  ollama:
+    extends:
+      file: docker-compose.base.yml
+      service: ollama
+  ollama-webui:
+    extends:
+      file: docker-compose.services.yml
+      service: ollama-webui
+
+#networks
+networks:
+  proxy:
+    external: true

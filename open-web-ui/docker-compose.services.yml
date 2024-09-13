@@ -1,0 +1,20 @@
+services:
+  ollama-webui:
+    build:
+      context: "e:/git/ollama-webui"
+      args:
+        OLLAMA_API_BASE_URL: "/ollama/api"
+      dockerfile: Dockerfile
+    image: ollama-webui:latest
+    container_name: ollama-webui
+    depends_on:
+      - ollama
+    ports:
+      - 5050:8080
+    networks:
+      - proxy
+    environment:
+      - "OLLAMA_API_BASE_URL=http://192.168.0.65:11434/api"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped

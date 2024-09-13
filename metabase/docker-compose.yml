@@ -1,4 +1,3 @@
-version: "3"
 
 services:
   postgres-db:
@@ -24,8 +23,8 @@ services:
     networks:
       - traefik-network
     volumes:
-      - c:/docker/metabase/plugins:/plugins
-      - c:/docker/metabase/metabase-data:/metabase-data
+      - e:/docker-images-data/metabase/plugins:/plugins
+      - e:/docker-images-data/metabase-data:/metabase-data
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.metabase.entrypoints=insecure"

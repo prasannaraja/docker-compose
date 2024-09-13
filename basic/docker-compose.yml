@@ -12,6 +12,14 @@ services:
     extends:
       file: docker-compose.base.yml
       service: mariadb
+  mssql:
+    extends:
+      file: docker-compose.base.yml
+      service: mssql
+  postgres-db:
+    extends:
+      file: docker-compose.base.yml
+      service: postgres-db
   portainer:
     extends:
       file: docker-compose.base.yml
@@ -41,6 +49,11 @@ services:
     extends:
       file: docker-compose.services.yml
       service: airsonic
+  metabase:
+    extends:
+      file: docker-compose.services.yml
+      service: metabase
+
 #networks
 networks:
   proxy:

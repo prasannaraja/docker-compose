@@ -1,0 +1,17 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    pull_policy: always
+    tty: true
+    networks:
+      - proxy
+    volumes:
+      - e:/docker-images-data/ollama:/root/.ollama
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
