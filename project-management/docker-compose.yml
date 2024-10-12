@@ -1,0 +1,18 @@
+services:
+  #project management
+  jira:
+    image: atlassian/jira-software
+    container_name: jira
+    ports:
+      - 9080:8080
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jira.entrypoints=web"
+      - "traefik.http.routers.jira.rule=Host(`jira.local`)"
+      - "traefik.http.services.jira.loadbalancer.server.port=9080"
+
+networks:
+  proxy:
+    external: true

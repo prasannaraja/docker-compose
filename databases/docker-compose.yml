@@ -1,9 +1,11 @@
-version: "3.8"
-
 services:
+  #databases
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    pull_policy: always
     container_name: mssql
+    volumes:
+      - ${BASE_PATH}/mssql/data:/var/opt/mssql/data
     environment:
       - "ACCEPT_EULA=Y"
       - "MSSQL_SA_PASSWORD=sasa@123"
@@ -15,6 +17,7 @@ services:
   mongodb:
     image: mongo
     container_name: mongodb
+    pull_policy: always
     ports:
       - "27017:27017"
     networks:
@@ -26,6 +29,7 @@ services:
   postgres:
     image: postgres
     container_name: postgres
+    pull_policy: always
     restart: always
     # set shared memory limit when using docker-compose
     shm_size: 128mb
@@ -41,15 +45,6 @@ services:
       - proxy
     environment:
       POSTGRES_PASSWORD: postgres
-
-  adminer:
-    image: adminer
-    container_name: adminer
-    restart: always
-    ports:
-      - 8082:8080
-    networks:
-      - proxy
 
 networks:
   proxy:

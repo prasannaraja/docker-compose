@@ -1,0 +1,24 @@
+services:
+  #email client
+  thunderbird:
+    image: kebles/wanderbird
+    container_name: Thunderbird
+    ports:
+      - "3800:3000"
+    networks:
+      - proxy
+    volumes:
+      - ${BASE_PATH}/thunderbird/config:/home/kebles/mail/
+    restart: unless-stopped
+    links:
+      - traefik
+      - adguardhome
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.thunderbird.entrypoints=web"
+      - "traefik.http.routers.thunderbird.rule=Host(`email.local`)"
+      - "traefik.http.services.thunderbird.loadbalancer.server.port=3800"
+
+networks:
+  proxy:
+    external: true
