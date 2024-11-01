@@ -8,12 +8,28 @@ services:
     extends:
       file: docker-compose.base.yml
       service: adguardhome
+  # mariadb:
+  #   extends:
+  #     file: docker-compose.base.yml
+  #     service: mariadb
+  # mssql:
+  #   extends:
+  #     file: docker-compose.base.yml
+  #     service: mssql
+  # postgres-db:
+  #   extends:
+  #     file: docker-compose.base.yml
+  #     service: postgres-db
 
   #services
-  actualbudget:
-    extends:
-      file: docker-compose.services.yml
-      service: actualbudget
+  # actualbudget:
+  #   extends:
+  #     file: docker-compose.services.yml
+  #     service: actualbudget
+  # photoprism:
+  #   extends:
+  #     file: docker-compose.services.yml
+  #     service: photoprism
   transmission:
     extends:
       file: docker-compose.services.yml
@@ -22,6 +38,11 @@ services:
     extends:
       file: docker-compose.services.yml
       service: plex
+  airsonic:
+    extends:
+      file: docker-compose.services.yml
+      service: airsonic
+
 #networks
 networks:
   proxy:

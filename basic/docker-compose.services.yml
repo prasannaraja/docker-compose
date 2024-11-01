@@ -102,7 +102,7 @@ services:
       - "traefik.http.routers.torrent.entrypoints=web"
       - "traefik.http.routers.torrent.rule=Host(`transmission.local`)"
       - "traefik.http.services.torrent.loadbalancer.server.port=9091"
-  #media server
+
   plex:
     image: plexinc/pms-docker
     container_name: plex-server
@@ -136,7 +136,7 @@ services:
       - "traefik.http.routers.plex.entrypoints=web"
       - "traefik.http.routers.plex.rule=Host(`plex.local`)"
       - "traefik.http.services.plex.loadbalancer.server.port=32400"
-  #media downloader
+
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
@@ -161,7 +161,7 @@ services:
       - "traefik.http.routers.radarr.entrypoints=web"
       - "traefik.http.routers.radarr.rule=Host(`radarr.local`)"
       - "traefik.http.services.radarr.loadbalancer.server.port=7878"
-  #media server
+
   airsonic:
     image: linuxserver/airsonic
     container_name: airsonic
@@ -187,7 +187,7 @@ services:
       - "traefik.http.routers.airsonic.entrypoints=web"
       - "traefik.http.routers.airsonic.rule=Host(`airsonic.local`)"
       - "traefik.http.services.airsonic.loadbalancer.server.port=4040"
-  #analytics
+
   metabase:
     image: metabase/metabase
     container_name: metabase
@@ -218,4 +218,38 @@ services:
       - "traefik.http.routers.metabase.entrypoints=web"
       - "traefik.http.routers.metabase.rule=Host(`metabase.local`)"
       - "traefik.http.services.metabase.loadbalancer.server.port=3500"
+        # - "traefik.http.routers.metabase.tls.certresolver=le"
 
+  thunderbird:
+    image: kebles/wanderbird
+    container_name: Thunderbird
+    ports:
+      - "3800:3000"
+    networks:
+      - proxy
+    volumes:
+      - ${BASE_PATH}/thunderbird/config:/home/kebles/mail/
+    restart: unless-stopped
+    links:
+      - traefik
+      - adguardhome
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.thunderbird.entrypoints=web"
+      - "traefik.http.routers.thunderbird.rule=Host(`email.local`)"
+      - "traefik.http.services.thunderbird.loadbalancer.server.port=3800"
+        # - "traefik.http.routers.metabase.tls.certresolver=le"
+
+  jira:
+    image: atlassian/jira-software
+    container_name: jira
+    ports:
+      - 9080:9080
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jira.entrypoints=web"
+      - "traefik.http.routers.jira.rule=Host(`jira.local`)"
+      - "traefik.http.services.jira.loadbalancer.server.port=9080"
+        # - "traefik.http.routers.metabase.tls.certresolver=le"

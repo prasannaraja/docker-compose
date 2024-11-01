@@ -41,8 +41,8 @@ services:
     networks:
       - proxy
     volumes:
-      - e:/docker-images-data/adguard/workdir:/opt/adguardhome/work
-      - e:/docker-images-data/adguard/confdir:/opt/adguardhome/conf
+      - ${BASE_PATH}/adguard/workdir:/opt/adguardhome/work
+      - ${BASE_PATH}/adguard/confdir:/opt/adguardhome/conf
     environment:
       - TZ=Europe/Malta
     depends_on:
@@ -52,6 +52,68 @@ services:
       - "traefik.http.routers.adguard.entrypoints=web"
       - "traefik.http.routers.adguard.rule=Host(`adguard.local`)"
       - "traefik.http.services.adguard.loadbalancer.server.port=3000"
+  #docker-tool
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    pull_policy: always
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${BASE_PATH}/portainer/data:/data
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.entrypoints=web"
+      - "traefik.http.routers.portainer.rule=Host(`docker.local`)"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+  #databases
+  mariadb:
+    image: mariadb:10.5
+    container_name: mariadb
+    restart: unless-stopped
+    command: mysqld --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=50
+    volumes:
+      - "/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: Welc0me$$
+      MYSQL_USER: photoprism
+      MYSQL_PASSWORD: insecure
+      MYSQL_DATABASE: photoprism
+    networks:
+      - proxy
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql
+    pull_policy: always
+    environment:
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_SA_PASSWORD=sasa@123"
+    ports:
+      - "1401:1433"
+    networks:
+      - proxy
+  postgres-db:
+    image: postgres
+    restart: always
+    container_name: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - proxy
+    environment:
+      - "POSTGRES_USER=metabase"
+      # - "POSTGRES_DB=metabase"
+      - "POSTGRES_PASSWORD=Welc0me123"
+      # - "PGDATA=/var/lib/postgresql/data"
+    # volumes:
+    # - c:/docker/metabase/pgdata:/var/lib/postgresql/data
 
 networks:
   proxy:
