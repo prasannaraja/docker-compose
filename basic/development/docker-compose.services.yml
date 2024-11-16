@@ -1,0 +1,12 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql
+    pull_policy: always
+    environment:
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_SA_PASSWORD=sasa@123"
+    ports:
+      - "1401:1433"
+    networks:
+      - proxy

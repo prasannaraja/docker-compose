@@ -1,0 +1,36 @@
+services:
+  #databases
+  mariadb:
+    image: mariadb:10.5
+    container_name: mariadb
+    restart: unless-stopped
+    command: mysqld --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=50
+    volumes:
+      - "/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: Welc0me$$
+      MYSQL_USER: photoprism
+      MYSQL_PASSWORD: insecure
+      MYSQL_DATABASE: photoprism
+    networks:
+      - proxy
+
+  postgres-db:
+    image: postgres
+    restart: always
+    container_name: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - proxy
+    environment:
+      - "POSTGRES_USER=metabase"
+      # - "POSTGRES_DB=metabase"
+      - "POSTGRES_PASSWORD=Welc0me123"
+      # - "PGDATA=/var/lib/postgresql/data"
+    # volumes:
+    # - c:/docker/metabase/pgdata:/var/lib/postgresql/data
+
+networks:
+  proxy:
+    external: true

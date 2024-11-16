@@ -1,0 +1,27 @@
+services:
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
+    restart: unless-stopped
+    volumes:
+      - ${BASE_PATH}/transmission/config:/config
+      - ${BASE_PATH}/transmission/watch:/watch
+      - ${BASE_PATH}/plex/media/movies:/downloads
+      - ${TEMP_PATH}/plex/media/movies:/incomplete
+    ports:
+      - "9091:9091"
+    networks:
+      - proxy
+    environment:
+      - "PUID=1000"
+      - "PGID=1000"
+      - "TZ=Etc/UTC"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.torrent.entrypoints=web"
+      - "traefik.http.routers.torrent.rule=Host(`transmission.local`)"
+      - "traefik.http.services.torrent.loadbalancer.server.port=9091"
+
+networks:
+  proxy:
+    external: true

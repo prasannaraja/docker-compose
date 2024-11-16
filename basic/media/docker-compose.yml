@@ -1,0 +1,18 @@
+services:
+  #services
+  transmission:
+    extends:
+      file: docker-compose.base.yml
+      service: transmission
+  plex:
+    extends:
+      file: docker-compose.services.yml
+      service: plex
+  airsonic:
+    extends:
+      file: docker-compose.services.yml
+      service: airsonic
+#networks
+networks:
+  proxy:
+    external: true

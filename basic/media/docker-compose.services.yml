@@ -1,0 +1,56 @@
+services:
+  plex:
+    image: plexinc/pms-docker
+    container_name: plex-server
+    pull_policy: always
+    restart: unless-stopped
+    volumes:
+      - ${BASE_PATH}/plex/config:/config
+      - ${BASE_PATH}/plex/media:/media
+      - ${BASE_PATH}/plex/transcode:/transcode
+    environment:
+      - "TZ=Europe/Stockholm"
+      - "PLEX_CLAIM=claim-_nxFhTDtyFUeLaLhCE9z"
+    ports:
+      - "32400:32400/tcp"
+      - "3005:3005/tcp"
+      - "8324:8324/tcp"
+      - "32469:32469/tcp"
+      - "1900:1900/udp"
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+    networks:
+      - proxy
+    depends_on:
+      - transmission
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.plex.entrypoints=web"
+      - "traefik.http.routers.plex.rule=Host(`plex.local`)"
+      - "traefik.http.services.plex.loadbalancer.server.port=32400"
+
+  airsonic:
+    image: lscr.io/linuxserver/airsonic-advanced:latest
+    container_name: airsonic
+    pull_policy: always
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - ${BASE_PATH}/airsonic/config:/config
+      - ${BASE_PATH}/airsonic/music:/music
+      - ${BASE_PATH}/airsonic/playlists:/playlists
+      - ${BASE_PATH}/airsonic/podcasts:/podcasts
+    ports:
+      - 4040:4040
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.airsonic.entrypoints=web"
+      - "traefik.http.routers.airsonic.rule=Host(`airsonic.local`)"
+      - "traefik.http.services.airsonic.loadbalancer.server.port=4040"

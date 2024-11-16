@@ -1,0 +1,21 @@
+services:
+  #databases
+  mariadb:
+    image: mariadb:10.5
+    pull_policy: always
+    container_name: mariadb
+    restart: unless-stopped
+    command: mysqld --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=50
+    volumes:
+      - "/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: Welc0me$$
+      MYSQL_USER: photoprism
+      MYSQL_PASSWORD: insecure
+      MYSQL_DATABASE: photoprism
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

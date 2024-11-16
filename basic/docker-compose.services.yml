@@ -19,12 +19,14 @@ services:
       - "traefik.http.routers.actualbudget.entrypoints=web"
       - "traefik.http.routers.actualbudget.rule=Host(`actuals.local`)"
       - "traefik.http.services.actualbudget.loadbalancer.server.port=5006"
+
   #photo web apps
   photoprism:
     image: photoprism/photoprism:latest
-    restart: unless-stopped
     container_name: photoprism
+    pull_policy: always
     user: "1000:1000"
+    restart: unless-stopped
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
@@ -77,6 +79,7 @@ services:
       - "traefik.http.routers.photoprism.entrypoints=web"
       - "traefik.http.routers.photoprism.rule=Host(`photoprism.local`)"
       - "traefik.http.services.photoprism.loadbalancer.server.port=2342"
+
   #media sharing apps
   transmission:
     image: lscr.io/linuxserver/transmission:latest
@@ -86,6 +89,7 @@ services:
       - ${BASE_PATH}/transmission/config:/config
       - ${BASE_PATH}/transmission/watch:/watch
       - ${BASE_PATH}/plex/media/movies:/downloads
+      - ${TEMP_PATH}/plex/media/movies:/incomplete
     ports:
       - "9091:9091"
     networks:
@@ -163,8 +167,9 @@ services:
       - "traefik.http.services.radarr.loadbalancer.server.port=7878"
 
   airsonic:
-    image: linuxserver/airsonic
+    image: lscr.io/linuxserver/airsonic-advanced:latest
     container_name: airsonic
+    pull_policy: always
     networks:
       - proxy
     environment:

@@ -1,3 +1,4 @@
-docker network create --scope=swarm --attachable -d overlay traefik-network
+docker swarm init
 docker network create --scope=swarm --attachable -d overlay proxy
+
 docker network create --scope=swarm --attachable -d overlay development-network

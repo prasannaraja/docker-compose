@@ -1,13 +1,13 @@
 services:
   #base
-  traefik:
+  mariadb:
     extends:
       file: docker-compose.base.yml
-      service: traefik
-  adguardhome:
+      service: mariadb
+  photoprism:
     extends:
-      file: docker-compose.base.yml
-      service: adguardhome
+      file: docker-compose.services.yml
+      service: photoprism
 
 #networks
 networks:

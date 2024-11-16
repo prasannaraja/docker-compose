@@ -1,0 +1,47 @@
+services:
+  #budget tools
+  actualbudget:
+    image: actualbudget/actual-server:latest
+    container_name: actual-budget
+    pull_policy: always
+    restart: unless-stopped
+    ports:
+      - "5006:5006"
+    networks:
+      - proxy
+    volumes:
+      - ${BASE_PATH}/actualbudget/data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.actualbudget.entrypoints=web"
+      - "traefik.http.routers.actualbudget.rule=Host(`actuals.local`)"
+      - "traefik.http.services.actualbudget.loadbalancer.server.port=5006"
+
+  metabase:
+    image: metabase/metabase
+    container_name: metabase
+    pull_policy: always
+    ports:
+      - 3500:3000
+    networks:
+      - proxy
+    volumes:
+      - ${BASE_PATH}/metabase/plugins:/plugins
+      - ${BASE_PATH}/metabase-data:/metabase-data
+    depends_on:
+      - postgres-db
+    environment:
+      - "MB_DB_TYPE=postgres"
+      - "MB_DB_DBNAME=metabase"
+      - "MB_DB_PORT=5432"
+      - "MB_DB_USER=metabase"
+      - "MB_DB_PASS=Welc0me123"
+      - "MB_DB_HOST=postgres-db"
+    links:
+      - postgres-db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.metabase.entrypoints=web"
+      - "traefik.http.routers.metabase.rule=Host(`metabase.local`)"
+      - "traefik.http.services.metabase.loadbalancer.server.port=3500"
+        # - "traefik.http.routers.metabase.tls.certresolver=le"

@@ -1,0 +1,9 @@
+services:
+  mssql:
+    extends:
+      file: docker-compose.base.yml
+      service: mssql
+
+networks:
+  proxy:
+    external: true

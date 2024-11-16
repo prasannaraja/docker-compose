@@ -1,0 +1,25 @@
+services:
+  #base
+  mariadb:
+    extends:
+      file: docker-compose.base.yml
+      service: mariadb
+  postgres-db:
+    extends:
+      file: docker-compose.base.yml
+      service: postgres-db
+
+  #services
+  actualbudget:
+    extends:
+      file: docker-compose.services.yml
+      service: actualbudget
+  metabase:
+    extends:
+      file: docker-compose.services.yml
+      service: metabase
+
+#networks
+networks:
+  proxy:
+    external: true
