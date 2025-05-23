@@ -1,0 +1,184 @@
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    pull_policy: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    networks:
+      - proxy
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`traefik.local`)"
+      - "traefik.http.routers.api.service=api@internal"
+
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    volumes:
+      - ./homarr/configs:/app/data/configs
+      - ./homarr/icons:/app/public/icons
+    ports:
+      - 7575:7575
+    networks:
+      - proxy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homarr.entrypoints=insecure"
+      - "traefik.http.routers.homarr.rule=Host(`homarr.localhost`)"
+      - "traefik.http.services.homarr.loadbalancer.server.port=7575"
+      # - "traefik.http.routers.homarr.tls.certresolver=le"
+
+  nginx:
+    image: lscr.io/linuxserver/nginx
+    container_name: nginx
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - /mnt/shared/docker-data/nginx/config:/config
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - proxy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx.entrypoints=secure"
+      - "traefik.http.routers.nginx.rule=Host(`nginx.localhost`)"
+      - "traefik.http.services.nginx.loadbalancer.server.port=80"
+      - "traefik.http.routers.nginx.tls.certresolver=le"
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql
+    pull_policy: always
+    environment:
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_SA_PASSWORD=sasa@123"
+    ports:
+      - "1401:1433"
+    networks:
+      - proxy
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    pull_policy: always
+    ports:
+      - "27017:27017"
+    networks:
+      - proxy
+    environment:
+      - "MONGO_INITDB_ROOT_USERNAME=admin"
+      - "MONGO_INITDB_ROOT_PASSWORD=admin@123"
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    pull_policy: always
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    ports:
+      - 5432:5432
+    networks:
+      - proxy
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  redis:
+    image: redis:latest
+    container_name: redis-server
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    networks:
+      - proxy
+    volumes:
+      - /mnt/shared/docker-data/redis/data:/data
+    environment:
+      - REDIS_PASSWORD=redis
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redis.entrypoints=web"
+      - "traefik.http.routers.redis.rule=Host(`redis.local`)"
+      - "traefik.http.services.redis.loadbalancer.server.port=6379"
+
+  zookeeper:
+    image: zookeeper:3.4.10
+    container_name: zookeeper
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zookeeper:2888:3888
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    networks:
+      - proxy
+
+  kafka:
+    image: confluentinc/cp-kafka:4.1.4
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - 9093:9093
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:19093,EXTERNAL://127.0.0.1:9093
+      KAFKA_BROKER_ID: 1
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      TOPIC_AUTO_CREATE: 1
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-broker-api-versions --bootstrap-server kafka:19093",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    hostname: kafka.local
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kafka.entrypoints=web"
+      - "traefik.http.routers.kafka.rule=Host(`kafka.local`)"
+      - "traefik.http.services.kafka.loadbalancer.server.port=9093"
+
+#networks
+networks:
+  proxy:
+    external: true
